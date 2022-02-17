@@ -1,0 +1,123 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Cat Details</h1>
+
+<div class="row">
+    <div class="col s6">
+        <div style="border: 2px solid orange;" class="card">
+            <div class="card-content #ffcc80 orange lighten-3">
+                <span class="card-title">{{ cat.name }}</span>
+                <p>Breed: {{ cat.breed }}</p>
+                <p>Description: {{ cat.description }}</p>
+                {% if cat.age > 0 %}
+                <p>Age: {{ cat.age }}</p>
+                {% else %}
+                <p>Age: Kitten</p>
+                {% endif %}
+            </div>
+            <div class="card-action orange">
+                <a style="color: black;" href="{% url 'cats_update' cat.id %}">Edit</a>
+                <a style="color: black;" href="{% url 'cats_delete' cat.id %}">Delete</a>
+            </div>
+        </div>
+        {% for photo in cat.photo_set.all %}
+            <img style="background-color: #ffcc80; border: 2px solid orange;" src="{{ photo.url }}" alt="{{ cat.name }}" class="responsive-img card-panel">
+        {% empty %}
+            <div style="border: 2px solid orange;" class="card-panel black-text center-align #ffcc80 orange lighten-3">No Photos Uploaded</div>
+        {% endfor %}
+        <form 
+            style="border: 2px solid orange;"
+            action="{% url 'add_photo' cat.id %}"
+            method="POST"
+            enctype="multipart/form-data" 
+            class="card-panel #ffcc80 orange lighten-3">
+            {% csrf_token %}
+            <input type="file" name="photo-file">
+            <br>
+            <br>
+            <input style="color: black;" class="btn orange" type="submit" value="Upload Photo">
+        </form>
+    </div>
+    <div class="col s6">
+        <form action="{% url 'add_feeding' cat.id %}" method="post">
+            {% csrf_token %} {{ feeding_form.as_p }}
+            <input style="color: black;" type="submit" class="btn orange" value="Add Feeding" />
+        </form>
+        <table class="striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Meal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feeding in cat.feeding_set.all %}
+                <tr>
+                    <td>{{feeding.date}}</td>
+                    <td>{{feeding.get_meal_display}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<hr />
+<div class="row">
+
+    <div class="col s6">
+        <h3>{{ cat.name }}'s Toys</h3>
+        {% if cat.toys.count %} {% for toy in cat.toys.all %}
+        <div style="border: 2px solid orange;" class="card">
+            <div class="card-content #ffcc80 orange lighten-3">
+                <span class="card-title">
+                    A <span class="{{ toy.color.lower }}-text">
+                        {{ toy.color }}</span> {{ toy.name }}
+                </span>
+            </div>
+        </div>
+        {% endfor %} {% else %}
+        <h5>No Toys :(</h5>
+        {% endif %}
+    </div>
+
+
+
+    <div class="col s6">
+        <h3>Available Toys</h3>
+        {% if toys.count %}
+        {% for toy in toys.all %}
+        <div style="border: 2px solid orange;" class="card">
+            <div class="card-content #ffcc80 orange lighten-3">
+                <span class="card-title">
+                    A <span class="{{ toy.color }}-text">{{ toy.color }}</span> {{ toy.name }}
+                </span>
+            </div>
+            <div class="card-action orange">
+                <form action="{% url 'assoc_toy' cat.id toy.id %}" method="post">
+                    {% csrf_token %}
+                    <button style="color: black;" type="submit" class="btn #ffcc80 orange lighten-3">Add</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <h5>{{cat.name}} Already Has All Toys Available</h5>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    var dateEl = document.getElementById('id_date');
+    M.Datepicker.init(dateEl, {
+        format: 'yyyy-mm-dd',
+        defaultDate: new Date(),
+        setDefaultDate: true,
+        autoClose: true
+    });
+
+    // add additional JS to initialize select below
+    var selectEl = document.getElementById('id_meal');
+    M.FormSelect.init(selectEl);
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Cat List</h1>
+
+{% for cat in cats %}
+<div style="border: 2px solid orange;" class="card">
+  <a style="color: black;" href="{% url 'detail' cat.id %}">
+    <div class="card-content #ffcc80 orange lighten-3">
+      <span class="card-title">{{ cat.name }}</span>
+      <p>Breed: {{ cat.breed }}</p>
+      <p>Description: {{ cat.description }}</p>
+      {% if cat.age > 0 %}
+      <p>Age: {{ cat.age }}</p>
+      <p>Created By: {{ user.username }}</p>
+      {% else %}
+      <p>Age: Kitten</p>
+      {% endif %}
+    </div>
+  </a>
+</div>
+{% endfor %} {% endblock %}
